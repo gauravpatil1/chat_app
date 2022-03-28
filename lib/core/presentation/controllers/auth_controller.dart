@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../pages/pages.dart';
+import 'cloud_firestore_controller.dart';
 import 'cloud_storage_controller.dart';
 import 'image_picker_controller.dart';
 
@@ -34,6 +35,7 @@ class AuthController extends GetxController {
     if (user == null) {
       Get.offAll(() => LoginPage());
     } else {
+      CloudFireStoreController.instance.addUserToApp(user);
       Get.offAll(
         () => const HomePage(),
       );

@@ -1,21 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/presentation/controllers/auth_controller.dart';
-import 'core/presentation/controllers/cloud_storage_controller.dart';
-import 'core/presentation/controllers/image_picker_controller.dart';
 import 'core/presentation/pages/pages.dart';
+import 'dependency_injection.dart' as di;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp().then((value) async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    Get.put(AuthController());
-    Get.put(sharedPreferences);
-    Get.put(ImagePickerController());
-    Get.put(CloudStorageController());
+    di.init();
   });
   runApp(const MyApp());
 }

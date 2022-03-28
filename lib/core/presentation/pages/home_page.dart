@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../features/user_list/presentation/pages/user_list_page.dart';
 import '../controllers/auth_controller.dart';
 import 'pages.dart';
 
@@ -43,6 +44,13 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.to(() => UserListPage());
+        },
+        backgroundColor: Colors.red.shade400,
+        child: const Icon(Icons.chat),
       ),
     );
   }

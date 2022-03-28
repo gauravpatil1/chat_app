@@ -2,14 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_core/firebase_core.dart' as firebase_core;
+import 'package:firebase_storage/firebase_storage.dart';
 
 class CloudStorageController extends GetxController {
   static CloudStorageController instance = Get.find();
 
-  static final firebase_storage.FirebaseStorage storage =
-      firebase_storage.FirebaseStorage.instance;
+  static final FirebaseStorage storage = FirebaseStorage.instance;
 
   Future<String> uploadFile(
       {required String path, required String fileName}) async {
@@ -17,10 +15,10 @@ class CloudStorageController extends GetxController {
 
     try {
       await storage.ref('uploads/$fileName').putFile(file);
-      return await firebase_storage.FirebaseStorage.instance
+      return await FirebaseStorage.instance
           .ref('uploads/$fileName')
           .getDownloadURL();
-    } on firebase_core.FirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       Get.snackbar(
         "title",
         "message",
