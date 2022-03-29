@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class AppUser extends Equatable {
@@ -6,6 +7,8 @@ class AppUser extends Equatable {
   final String email;
   final String photoUrl;
   final String status;
+  final bool isOnline;
+  final Timestamp lastSeen;
 
   const AppUser({
     required this.uid,
@@ -13,6 +16,8 @@ class AppUser extends Equatable {
     required this.email,
     required this.photoUrl,
     required this.status,
+    required this.isOnline,
+    required this.lastSeen,
   });
 
   @override
@@ -22,5 +27,7 @@ class AppUser extends Equatable {
         email,
         photoUrl,
         status,
+        isOnline,
+        lastSeen,
       ];
 }

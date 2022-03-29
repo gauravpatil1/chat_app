@@ -8,6 +8,10 @@ import '../models/message_model.dart';
 
 abstract class ChatRemoteDataSource {
   Future<ChatModel> sendMessage(String chatId, MessageModel message);
+
+  Future<Stream<ChatModel>> getChat(String chatId, AppUser receiver);
+
+  Stream<List<MessageModel>> getMessages(String chatId);
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
@@ -26,6 +30,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     });
   }
 
+  @override
   Future<Stream<ChatModel>> getChat(String chatId, AppUser receiver) {
     return CloudFireStoreController.firestore
         .collection('chats')
@@ -71,10 +76,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     });
   }
 
+  @override
   Stream<List<MessageModel>> getMessages(String chatId) {
     return CloudFireStoreController.firestore
         .collection('chats/$chatId/messages')
-        .orderBy('sentAt', descending: false)
+        .orderBy('sentAt', descending: true)
         .snapshots()
         .map((query) {
       return query.docs.map((doc) {

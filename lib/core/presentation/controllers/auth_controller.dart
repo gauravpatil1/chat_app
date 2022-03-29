@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../features/active_chats/presentation/pages/active_chats_page.dart';
 import '../pages/pages.dart';
 import 'cloud_firestore_controller.dart';
 import 'cloud_storage_controller.dart';
@@ -31,13 +33,24 @@ class AuthController extends GetxController {
     ever(_user, _onUserStateChange);
   }
 
+  @override
+  void onClose() {
+    _user.close();
+    super.onClose();
+  }
+
   _onUserStateChange(User? user) {
     if (user == null) {
       Get.offAll(() => LoginPage());
     } else {
       CloudFireStoreController.instance.addUserToApp(user);
+      CloudFireStoreController.instance.changeAppUserDetails(
+        user.uid,
+        lastSeen: Timestamp.now(),
+        isOnline: true,
+      );
       Get.offAll(
-        () => const HomePage(),
+        () => ActiveChatsPage(),
       );
     }
   }
@@ -107,6 +120,11 @@ class AuthController extends GetxController {
     try {
       saveUsernameToLocale(auth.currentUser!.displayName ?? '');
       saveUserImageToLocale(auth.currentUser!.photoURL ?? '');
+      CloudFireStoreController.instance.changeAppUserDetails(
+        AuthController.instance.user!.uid,
+        lastSeen: Timestamp.now(),
+        isOnline: false,
+      );
       if (isSignedInusingGoogle.value) {
         await googleSignIn.disconnect();
       }
@@ -257,6 +275,10 @@ class AuthController extends GetxController {
   Future<void> changeUsername(String value) async {
     try {
       await auth.currentUser!.updateDisplayName(value);
+      CloudFireStoreController.instance.changeAppUserDetails(
+        auth.currentUser!.uid,
+        name: value,
+      );
     } catch (e) {
       Get.snackbar(
         "title",
@@ -295,6 +317,10 @@ class AuthController extends GetxController {
                 .then((value) async {
               if (value.isNotEmpty) {
                 await auth.currentUser!.updatePhotoURL(value);
+                CloudFireStoreController.instance.changeAppUserDetails(
+                  auth.currentUser!.uid,
+                  name: value,
+                );
               }
             });
           }

@@ -8,6 +8,7 @@ import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../user_list/domain/entities/app_user.dart';
 import '../../data/models/message_model.dart';
 import '../controllers/chat_controller.dart';
+import '../widgets/chat_message_tile.dart';
 
 class ChatDetailsPage extends StatefulWidget {
   final AppUser user;
@@ -34,7 +35,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Widget build(BuildContext context) {
     return OrientationBuilder(
       builder: (context, orientation) {
-        bool isPortrait = orientation == Orientation.portrait;
         return Scaffold(
           resizeToAvoidBottomInset: true,
           backgroundColor: const Color(0xFF0E185F),
@@ -48,13 +48,13 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                   title: Row(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(40),
                         child: CachedNetworkImage(
                           imageUrl: widget.user.photoUrl,
-                          width: 50,
-                          height: 50,
+                          width: 40,
+                          height: 40,
                           errorWidget: (context, url, err) => PersonIcon(
-                            size: 25,
+                            size: 20,
                             color: Colors.grey.shade400,
                           ),
                         ),
@@ -74,26 +74,39 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                const Text(
-                                  'Online',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            GetX<ChatController>(builder: (controller) {
+                              return controller.otherPerson.isOnline
+                                  ? Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: Container(
+                                            width: 10,
+                                            height: 10,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        const Text(
+                                          'Online',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Text(
+                                      'last seen ' +
+                                          getLastSeen(
+                                              controller.otherPerson.lastSeen),
+                                      style: TextStyle(
+                                        color: Colors.grey.shade400,
+                                        fontSize: 10,
+                                      ),
+                                    );
+                            }),
                           ],
                         ),
                       ),
@@ -112,6 +125,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       children: [
                         Expanded(
                             child: ListView.builder(
+                          reverse: true,
                           itemCount: controller.messages.length,
                           itemBuilder: (context, index) {
                             return ChatMessageTile(
@@ -167,6 +181,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                             '',
                                       ),
                                     );
+                                    messageController.text = '';
                                   },
                                 ),
                               ),
@@ -216,109 +231,20 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       },
     );
   }
-}
 
-class ChatMessageTile extends StatelessWidget {
-  final MessageModel message;
-  final String lastUserWhoSentMessage;
-  const ChatMessageTile({
-    Key? key,
-    required this.message,
-    required this.lastUserWhoSentMessage,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    bool didUserSentThisMessage =
-        message.senderId == AuthController.instance.user!.uid;
-    return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
-      child: Material(
-        color: Colors.transparent,
-        child: Row(
-          children: [
-            (!didUserSentThisMessage &&
-                    lastUserWhoSentMessage != message.senderName)
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: CachedNetworkImage(
-                      imageUrl: message.senderAvatarUrl,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, err) => PersonIcon(
-                        size: 20,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-                  )
-                : const SizedBox(
-                    width: 40,
-                    height: 40,
-                  ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: didUserSentThisMessage
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
-                children: [
-                  Visibility(
-                    visible: (!didUserSentThisMessage &&
-                        lastUserWhoSentMessage != message.senderName),
-                    child: Container(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      margin: const EdgeInsets.only(left: 5, right: 5),
-                      child: Text(
-                        message.senderName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: message.imageAsMessage.isNotEmpty,
-                    child: Container(
-                      constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.7),
-                      margin: const EdgeInsets.only(left: 5, right: 5),
-                      child:
-                          CachedNetworkImage(imageUrl: message.imageAsMessage),
-                    ),
-                  ),
-                  Visibility(
-                    visible: message.imageAsMessage.isEmpty,
-                    child: Container(
-                      constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.7),
-                      padding: const EdgeInsets.all(20),
-                      margin: const EdgeInsets.only(left: 5, right: 5),
-                      decoration: BoxDecoration(
-                        color: didUserSentThisMessage
-                            ? const Color(0xFF6EDCD9)
-                            : const Color.fromARGB(255, 61, 71, 146),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        message.message,
-                        style: TextStyle(
-                          color: didUserSentThisMessage
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  String getLastSeen(Timestamp lastSeen) {
+    DateTime dateTime = lastSeen.toDate();
+    String amPm = (dateTime.hour / 12 >= 1) ? 'pm' : 'am';
+    var atPart = (dateTime.hour == 0)
+        ? ' at 12:${dateTime.minute} am'
+        : ' at ${dateTime.hour % 12}:${dateTime.minute} ' + amPm;
+    var now = DateTime.now();
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day) {
+      return 'today' + atPart;
+    } else {
+      return '${dateTime.day}-${dateTime.month}-${dateTime.year}' + atPart;
+    }
   }
 }

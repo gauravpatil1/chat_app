@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../features/user_list/presentation/pages/user_list_page.dart';
-import '../controllers/auth_controller.dart';
-import 'pages.dart';
+import '../../../../core/presentation/pages/pages.dart';
+import '../../../user_list/presentation/pages/user_list_page.dart';
+import '../controllers/active_chats_controller.dart';
+import '../widgets/active_chat_tile.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class ActiveChatsPage extends StatelessWidget {
+  ActiveChatsPage({Key? key}) : super(key: key);
+
+  final ActiveChatsController activeChatsController =
+      Get.put(ActiveChatsController());
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +37,18 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(
-              "data " + AuthController.instance.user!.email!,
-              style: const TextStyle(
-                color: Colors.white,
+        child: GetX<ActiveChatsController>(
+          builder: (controller) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListView.builder(
+                itemCount: controller.activeChats.length,
+                itemBuilder: (context, index) {
+                  return ActiveChatTile(chat: controller.activeChats[index]);
+                },
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(

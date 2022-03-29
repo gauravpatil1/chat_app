@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/presentation/controllers/auth_controller.dart';
+import '../../../../core/presentation/controllers/cloud_firestore_controller.dart';
 import '../../../../core/presentation/controllers/cloud_storage_controller.dart';
 import '../../../../core/presentation/controllers/image_picker_controller.dart';
+import '../../../user_list/data/models/app_user_model.dart';
 import '../../../user_list/domain/entities/app_user.dart';
 import '../../data/datasources/chat_remote_data_source.dart';
 import '../../data/models/message_model.dart';
@@ -17,7 +19,9 @@ class ChatController extends GetxController {
   AppUser receiver;
   ChatController(this.receiver);
 
-  SendMessage sendMessage = Get.put(SendMessage());
+  final SendMessage sendMessage = Get.put(SendMessage());
+  final ChatRemoteDataSource chatRemoteDataSource =
+      Get.put(ChatRemoteDataSourceImpl());
 
   final _chat = Chat(
     messages: const [],
@@ -28,11 +32,23 @@ class ChatController extends GetxController {
     chatId: '',
   ).obs;
 
+  Chat get chat => _chat.value;
+
   final _messages = <MessageModel>[].obs;
 
   List<MessageModel> get messages => _messages;
 
-  Chat get chat => _chat.value;
+  final _otherPerson = AppUser(
+    uid: '',
+    name: '',
+    email: '',
+    photoUrl: '',
+    status: '',
+    isOnline: false,
+    lastSeen: Timestamp.fromDate(DateTime(1994)),
+  ).obs;
+
+  AppUser get otherPerson => _otherPerson.value;
 
   @override
   void onInit() {
@@ -45,10 +61,19 @@ class ChatController extends GetxController {
       receiver.uid,
       AuthController.instance.user!.uid,
     );
-    ChatRemoteDataSourceImpl().getChat(chatId, receiver).then((value) {
+    chatRemoteDataSource.getChat(chatId, receiver).then((value) {
       _chat.bindStream(value);
-      _messages.bindStream(ChatRemoteDataSourceImpl().getMessages(chatId));
+      _messages.bindStream(chatRemoteDataSource.getMessages(chatId));
+      _otherPerson.bindStream(getOtherUser(receiver.uid));
     });
+  }
+
+  @override
+  void onClose() {
+    _chat.close();
+    _messages.close();
+    _otherPerson.close();
+    super.onClose();
   }
 
   Future<void> sendMessageCall({
@@ -137,5 +162,15 @@ class ChatController extends GetxController {
         ),
       );
     }
+  }
+
+  Stream<AppUserModel> getOtherUser(String id) {
+    return CloudFireStoreController.firestore
+        .collection('users')
+        .doc(id)
+        .snapshots()
+        .map(
+          (doc) => AppUserModel.fromJson(doc.data()!),
+        );
   }
 }

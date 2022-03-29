@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/app_user.dart';
 
 class AppUserModel extends AppUser {
@@ -7,12 +9,16 @@ class AppUserModel extends AppUser {
     required String email,
     required String photoUrl,
     required String status,
+    required bool isOnline,
+    required Timestamp lastSeen,
   }) : super(
           uid: uid,
           name: name,
           email: email,
           photoUrl: photoUrl,
           status: status,
+          isOnline: isOnline,
+          lastSeen: lastSeen,
         );
 
   factory AppUserModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +28,8 @@ class AppUserModel extends AppUser {
       email: json['email'],
       photoUrl: json['photoUrl'],
       status: json['status'],
+      isOnline: json['isOnline'],
+      lastSeen: json['lastSeen'],
     );
   }
 
@@ -32,6 +40,8 @@ class AppUserModel extends AppUser {
       'email': email,
       'photoUrl': photoUrl,
       'status': status,
+      'isOnline': isOnline,
+      'lastSeen': lastSeen,
     };
   }
 }
