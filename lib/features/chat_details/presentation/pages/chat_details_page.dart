@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,8 @@ class ChatDetailsPage extends StatefulWidget {
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
   late ChatController chatController;
   final messageController = TextEditingController();
+  bool isFileUploading = false;
+  String fileUploadingPath = '';
 
   @override
   void initState() {
@@ -142,6 +146,48 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                             );
                           },
                         )),
+                        Visibility(
+                          visible: isFileUploading,
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            margin: const EdgeInsets.only(
+                                left: 10, right: 10, top: 10),
+                            child: Container(
+                              constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.7),
+                              margin: const EdgeInsets.only(left: 5, right: 5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6EDCD9),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      File(fileUploadingPath),
+                                    ),
+                                  ),
+                                  const Positioned(
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    top: 0,
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: 100,
+                                        height: 100,
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                         Container(
                           margin: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
@@ -197,28 +243,32 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                               IconButton(
                                 onPressed: () {
                                   controller.uploadChatImage(
-                                    callback: (str) {
-                                      controller.sendMessageCall(
-                                        message: MessageModel(
-                                          message: '',
-                                          imageAsMessage: str,
-                                          receivedAt: Timestamp.fromDate(
-                                              DateTime(1994)),
-                                          sentAt: Timestamp.now(),
-                                          seenAt: Timestamp.fromDate(
-                                              DateTime(1994)),
-                                          senderAvatarUrl: AuthController
-                                                  .instance.user!.photoURL ??
-                                              '',
-                                          senderId:
-                                              AuthController.instance.user!.uid,
-                                          senderName: AuthController
-                                                  .instance.user!.displayName ??
-                                              '',
-                                        ),
-                                        oldUnseenCount:
-                                            controller.chat.unseenCount,
-                                      );
+                                    callback: (downloadUrl, filePath) {
+                                      showFileUpload(filePath, true);
+                                      downloadUrl.then((value) {
+                                        controller.sendMessageCall(
+                                          message: MessageModel(
+                                            message: '',
+                                            imageAsMessage: value,
+                                            receivedAt: Timestamp.fromDate(
+                                                DateTime(1994)),
+                                            sentAt: Timestamp.now(),
+                                            seenAt: Timestamp.fromDate(
+                                                DateTime(1994)),
+                                            senderAvatarUrl: AuthController
+                                                    .instance.user!.photoURL ??
+                                                '',
+                                            senderId: AuthController
+                                                .instance.user!.uid,
+                                            senderName: AuthController.instance
+                                                    .user!.displayName ??
+                                                '',
+                                          ),
+                                          oldUnseenCount:
+                                              controller.chat.unseenCount,
+                                        );
+                                        showFileUpload(filePath, false);
+                                      });
                                     },
                                   );
                                 },
@@ -258,5 +308,12 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     } else {
       return '${dateTime.day}-${dateTime.month}-${dateTime.year}' + atPart;
     }
+  }
+
+  void showFileUpload(String filePath, bool check) {
+    setState(() {
+      isFileUploading = check;
+      fileUploadingPath = check ? filePath : '';
+    });
   }
 }

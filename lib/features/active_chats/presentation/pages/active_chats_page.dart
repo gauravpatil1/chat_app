@@ -1,10 +1,8 @@
-import 'dart:developer';
-
-import 'package:chat_app/core/presentation/controllers/auth_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/presentation/controllers/auth_controller.dart';
 import '../../../../core/presentation/controllers/cloud_firestore_controller.dart';
 import '../../../../core/presentation/pages/pages.dart';
 import '../../../user_list/presentation/pages/user_list_page.dart';

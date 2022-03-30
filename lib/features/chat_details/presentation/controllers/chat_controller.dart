@@ -160,7 +160,7 @@ class ChatController extends GetxController {
   }
 
   /// Uploads image as chat message in firebase storage and returns a callback with stored image url
-  void uploadChatImage({required Function(String) callback}) {
+  void uploadChatImage({required Function(Future<String>, String) callback}) {
     try {
       ImagePickerController.instance.pickImage(
         callback: (filePath) {
@@ -173,11 +173,9 @@ class ChatController extends GetxController {
                 TimeOfDay.now().toString() +
                 '_chatImage.' +
                 filePath.split("/").last.split('.').last;
-            CloudStorageController.instance
-                .uploadFile(path: filePath, fileName: fileName)
-                .then((value) async {
-              callback(value);
-            });
+            var downloadUrl = CloudStorageController.instance
+                .uploadFile(path: filePath, fileName: fileName);
+            callback(downloadUrl, filePath);
           }
         },
       );
