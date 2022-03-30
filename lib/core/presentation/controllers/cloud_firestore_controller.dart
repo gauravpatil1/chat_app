@@ -72,6 +72,7 @@ class CloudFireStoreController extends GetxController {
     String chatBotName = 'Chat Bot';
     String chatBotChatImg =
         'https://firebasestorage.googleapis.com/v0/b/chat-app-7007e.appspot.com/o/uploads%2FchatImages%2Fdemo_chat.jpeg?alt=media&token=027811c2-2a07-4c80-9edb-87c08896f7f4';
+    String chatBotChatMsg = 'Welcome to Chat App! 🙏😀 😃 😄';
     firestore.collection('chats').doc(chatId).set(
           ChatModel(
             messages: [].map((item) => item as MessageModel).toList(),
@@ -89,12 +90,17 @@ class CloudFireStoreController extends GetxController {
               chatBotName,
             ],
             chatId: chatId,
+            latestMessage: chatBotChatMsg,
+            latestMessageTime: Timestamp.now(),
+            isLatestMessageImage: false,
+            latestMessageSenderId: chatBotId,
+            unseenCount: 2,
           ).toJson(),
         );
     firestore.collection('chats/$chatId/messages').add(
           MessageModel(
-            message: 'Welcome to Chat App! 🙏😀 😃 😄',
-            imageAsMessage: '',
+            message: '',
+            imageAsMessage: chatBotChatImg,
             receivedAt: Timestamp.fromDate(DateTime(1994)),
             sentAt: Timestamp.now(),
             seenAt: Timestamp.fromDate(DateTime(1994)),
@@ -105,8 +111,8 @@ class CloudFireStoreController extends GetxController {
         );
     firestore.collection('chats/$chatId/messages').add(
           MessageModel(
-            message: '',
-            imageAsMessage: chatBotChatImg,
+            message: chatBotChatMsg,
+            imageAsMessage: '',
             receivedAt: Timestamp.fromDate(DateTime(1994)),
             sentAt: Timestamp.now(),
             seenAt: Timestamp.fromDate(DateTime(1994)),

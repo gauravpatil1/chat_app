@@ -16,19 +16,29 @@ class SendMessage implements UseCase<Chat, Params> {
   Future<Either<Failure, Chat>> call(
     Params params,
   ) async {
-    return await repository.sendMessage(params.message, params.chatId);
+    return await repository.sendMessage(
+      params.message,
+      params.chatId,
+      params.oldUnseenCount,
+    );
   }
 }
 
 class Params extends Equatable {
   final MessageModel message;
   final String chatId;
+  final int oldUnseenCount;
 
   const Params({
     required this.message,
     required this.chatId,
+    required this.oldUnseenCount,
   });
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [
+        message,
+        chatId,
+        oldUnseenCount,
+      ];
 }

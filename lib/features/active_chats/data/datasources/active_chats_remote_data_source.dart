@@ -13,6 +13,7 @@ class ActiveChatsRemoteDataSourceImpl implements ActiveChatsRemoteDataSource {
         .collection('chats')
         .where('participantsId',
             arrayContains: AuthController.instance.user!.uid)
+        .orderBy('latestMessageTime', descending: true)
         .snapshots()
         .map((query) {
       return query.docs.map((doc) => ChatModel.fromJson(doc.data())).toList();

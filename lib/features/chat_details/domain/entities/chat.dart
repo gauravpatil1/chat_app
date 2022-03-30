@@ -10,6 +10,11 @@ class Chat extends Equatable {
   final List<String> participantsId;
   final List<String> participantsName;
   final String chatId;
+  final String latestMessage;
+  final Timestamp latestMessageTime;
+  final bool isLatestMessageImage;
+  final String latestMessageSenderId;
+  final int unseenCount;
 
   const Chat({
     required this.messages,
@@ -18,6 +23,11 @@ class Chat extends Equatable {
     required this.participantsId,
     required this.participantsName,
     required this.chatId,
+    required this.latestMessage,
+    required this.latestMessageTime,
+    required this.isLatestMessageImage,
+    required this.latestMessageSenderId,
+    required this.unseenCount,
   });
 
   @override
@@ -28,5 +38,10 @@ class Chat extends Equatable {
         participantsId,
         participantsName,
         chatId,
+        latestMessage,
+        latestMessageTime,
+        isLatestMessageImage,
+        latestMessageSenderId,
+        unseenCount,
       ];
 }

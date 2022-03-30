@@ -7,19 +7,47 @@ import '../models/chat_model.dart';
 import '../models/message_model.dart';
 
 abstract class ChatRemoteDataSource {
-  Future<ChatModel> sendMessage(String chatId, MessageModel message);
+  Future<ChatModel> sendMessage(
+      String chatId, MessageModel message, int oldUnseenCount);
 
   Future<Stream<ChatModel>> getChat(String chatId, AppUser receiver);
 
   Stream<List<MessageModel>> getMessages(String chatId);
+
+  void markSeenAndUpdateUnseenCount(String chatId, int oldCount);
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
-  Future<ChatModel> sendMessage(String chatId, MessageModel message) {
-    CloudFireStoreController.firestore
+  Future<ChatModel> sendMessage(
+      String chatId, MessageModel message, int oldUnseenCount) async {
+    await CloudFireStoreController.firestore
         .collection('chats/$chatId/messages')
         .add(message.toJson());
+
+    if (message.imageAsMessage.isNotEmpty) {
+      await CloudFireStoreController.firestore
+          .collection('chats')
+          .doc(chatId)
+          .update({
+        'latestMessage': message.imageAsMessage,
+        'latestMessageTime': message.sentAt,
+        'isLatestMessageImage': true,
+        'latestMessageSenderId': message.senderId,
+        'unseenCount': oldUnseenCount + 1,
+      });
+    } else {
+      await CloudFireStoreController.firestore
+          .collection('chats')
+          .doc(chatId)
+          .update({
+        'latestMessage': message.message,
+        'latestMessageTime': message.sentAt,
+        'isLatestMessageImage': false,
+        'latestMessageSenderId': message.senderId,
+        'unseenCount': oldUnseenCount + 1,
+      });
+    }
 
     return CloudFireStoreController.firestore
         .collection('chats')
@@ -55,6 +83,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
                   AuthController.instance.user!.displayName ?? '',
                 ],
                 chatId: chatId,
+                latestMessage: '',
+                latestMessageTime: Timestamp.now(),
+                isLatestMessageImage: false,
+                latestMessageSenderId: AuthController.instance.user!.uid,
+                unseenCount: 0,
               ).toJson(),
             );
         return CloudFireStoreController.firestore
@@ -86,6 +119,29 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       return query.docs.map((doc) {
         return MessageModel.fromJson(doc.data());
       }).toList();
+    });
+  }
+
+  @override
+  Future<void> markSeenAndUpdateUnseenCount(String chatId, int oldCount) async {
+    await CloudFireStoreController.firestore
+        .collection('chats')
+        .doc(chatId)
+        .update({'unseenCount': 0});
+
+    await CloudFireStoreController.firestore
+        .collection('chats/$chatId/messages')
+        .orderBy('sentAt', descending: true)
+        .limit(oldCount)
+        .get()
+        .then((querySnapshot) {
+      var docIds = querySnapshot.docs.map((doc) => doc.id).toList();
+      for (var id in docIds) {
+        CloudFireStoreController.firestore
+            .collection('chats/$chatId/messages')
+            .doc(id)
+            .update({'seenAt': Timestamp.now()});
+      }
     });
   }
 }

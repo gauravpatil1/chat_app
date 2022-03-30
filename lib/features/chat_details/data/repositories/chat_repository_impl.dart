@@ -21,12 +21,14 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, Chat>> sendMessage(
     MessageModel message,
     String chatId,
+    int oldUnseenCount,
   ) async {
     if (await networkInfo.isConnected) {
       try {
         final chat = await chatRemoteDataSource.sendMessage(
           chatId,
           message,
+          oldUnseenCount,
         );
         chatLocalDataSource.saveChat(chat);
         return Right(chat);

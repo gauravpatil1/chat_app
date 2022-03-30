@@ -14,6 +14,11 @@ class ChatModel extends Chat {
     required List<String> participantsId,
     required List<String> participantsName,
     required String chatId,
+    required String latestMessage,
+    required Timestamp latestMessageTime,
+    required bool isLatestMessageImage,
+    required String latestMessageSenderId,
+    required int unseenCount,
   }) : super(
           messages: messages,
           createdAt: createdAt,
@@ -21,6 +26,11 @@ class ChatModel extends Chat {
           participantsId: participantsId,
           participantsName: participantsName,
           chatId: chatId,
+          latestMessage: latestMessage,
+          latestMessageTime: latestMessageTime,
+          isLatestMessageImage: isLatestMessageImage,
+          latestMessageSenderId: latestMessageSenderId,
+          unseenCount: unseenCount,
         );
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +49,11 @@ class ChatModel extends Chat {
           .map((item) => item as String)
           .toList(),
       chatId: json['chatId'],
+      latestMessage: json['latestMessage'],
+      latestMessageTime: json['latestMessageTime'],
+      isLatestMessageImage: json['isLatestMessageImage'],
+      latestMessageSenderId: json['latestMessageSenderId'],
+      unseenCount: json['unseenCount'],
     );
   }
 
@@ -54,6 +69,11 @@ class ChatModel extends Chat {
       'participantsId': participantsId,
       'participantsName': participantsName,
       'chatId': chatId,
+      'latestMessage': latestMessage,
+      'latestMessageTime': latestMessageTime,
+      'isLatestMessageImage': isLatestMessageImage,
+      'latestMessageSenderId': latestMessageSenderId,
+      'unseenCount': unseenCount,
     };
   }
 }

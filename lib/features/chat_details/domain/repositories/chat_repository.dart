@@ -6,5 +6,5 @@ import '../entities/chat.dart';
 
 abstract class ChatRepository {
   Future<Either<Failure, Chat>> sendMessage(
-      MessageModel message, String chatId);
+      MessageModel message, String chatId, int oldUnseenCount);
 }

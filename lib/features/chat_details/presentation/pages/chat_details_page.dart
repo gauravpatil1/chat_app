@@ -133,6 +133,11 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                               lastUserWhoSentMessage: index == 0
                                   ? ''
                                   : controller.messages[index - 1].senderName,
+                              dateOfLastMessage:
+                                  index == controller.messages.length - 1
+                                      ? DateTime(1994, 1, 1)
+                                      : controller.messages[index + 1].sentAt
+                                          .toDate(),
                             );
                           },
                         )),
@@ -156,7 +161,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                   ),
                                   decoration: const InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: 'Search user',
+                                    hintText: 'Message',
                                     hintStyle: TextStyle(
                                       color: Colors.grey,
                                     ),
@@ -180,6 +185,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                                 .instance.user!.displayName ??
                                             '',
                                       ),
+                                      oldUnseenCount:
+                                          controller.chat.unseenCount,
                                     );
                                     messageController.text = '';
                                   },
@@ -208,6 +215,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                                   .instance.user!.displayName ??
                                               '',
                                         ),
+                                        oldUnseenCount:
+                                            controller.chat.unseenCount,
                                       );
                                     },
                                   );
@@ -237,7 +246,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     String amPm = (dateTime.hour / 12 >= 1) ? 'pm' : 'am';
     var atPart = (dateTime.hour == 0)
         ? ' at 12:${dateTime.minute} am'
-        : ' at ${dateTime.hour % 12}:${dateTime.minute} ' + amPm;
+        : (dateTime.hour == 12)
+            ? '12:${dateTime.minute} pm'
+            : ' at ${dateTime.hour % 12}:${dateTime.minute} ' + amPm;
     var now = DateTime.now();
     if (dateTime.year == now.year &&
         dateTime.month == now.month &&

@@ -54,27 +54,100 @@ class ActiveChatTile extends StatelessWidget {
               ),
             ),
           ),
-          title: Text(
-            chat.participantsName[userIndex],
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  chat.participantsName[userIndex],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                getMessageTime(chat.latestMessageTime),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.grey.shade400,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
-          subtitle: Text(
-            'latest message',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.grey.shade400,
-              fontSize: 14,
-            ),
+          subtitle: Row(
+            children: [
+              Visibility(
+                visible: chat.isLatestMessageImage,
+                child: Container(
+                  margin: const EdgeInsets.only(right: 5),
+                  child: Icon(
+                    Icons.image,
+                    color: Colors.grey.shade400,
+                    size: 14,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  chat.isLatestMessageImage ? 'Image' : chat.latestMessage,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: (chat.participantsId[userIndex] ==
+                        chat.latestMessageSenderId &&
+                    chat.unseenCount > 0),
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  margin: const EdgeInsets.only(left: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(11),
+                    color: Colors.red.shade400,
+                  ),
+                  child: Text(
+                    ' ${chat.unseenCount} ',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontSize: 8,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  String getMessageTime(Timestamp latestMessageTime) {
+    DateTime dateTime = latestMessageTime.toDate();
+    String amPm = (dateTime.hour / 12 >= 1) ? 'pm' : 'am';
+    var atPart = (dateTime.hour == 0)
+        ? '12:${dateTime.minute} am'
+        : (dateTime.hour == 12)
+            ? '12:${dateTime.minute} pm'
+            : '${dateTime.hour % 12}:${dateTime.minute} ' + amPm;
+    var now = DateTime.now();
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day) {
+      return atPart;
+    } else {
+      return '${dateTime.day}-${dateTime.month}-${dateTime.year}';
+    }
   }
 }

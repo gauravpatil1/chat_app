@@ -30,6 +30,11 @@ class ChatController extends GetxController {
     participantsId: const [],
     participantsName: const [],
     chatId: '',
+    latestMessage: '',
+    latestMessageTime: Timestamp.now(),
+    isLatestMessageImage: false,
+    latestMessageSenderId: '',
+    unseenCount: 0,
   ).obs;
 
   Chat get chat => _chat.value;
@@ -63,9 +68,21 @@ class ChatController extends GetxController {
     );
     chatRemoteDataSource.getChat(chatId, receiver).then((value) {
       _chat.bindStream(value);
+      ever(_chat, _checkForUnseenMessages);
       _messages.bindStream(chatRemoteDataSource.getMessages(chatId));
       _otherPerson.bindStream(getOtherUser(receiver.uid));
     });
+  }
+
+  void _checkForUnseenMessages(Chat chat) {
+    String chatId = createChatId(
+      receiver.uid,
+      AuthController.instance.user!.uid,
+    );
+    if (chat.unseenCount > 0 && chat.latestMessageSenderId == receiver.uid) {
+      chatRemoteDataSource.markSeenAndUpdateUnseenCount(
+          chatId, chat.unseenCount);
+    }
   }
 
   @override
@@ -78,6 +95,7 @@ class ChatController extends GetxController {
 
   Future<void> sendMessageCall({
     required MessageModel message,
+    required int oldUnseenCount,
   }) async {
     String chatId = createChatId(
       receiver.uid,
@@ -87,6 +105,7 @@ class ChatController extends GetxController {
       Params(
         message: message,
         chatId: chatId,
+        oldUnseenCount: oldUnseenCount,
       ),
     );
     failureOrList.fold((failure) {
@@ -107,6 +126,11 @@ class ChatController extends GetxController {
           AuthController.instance.user!.displayName ?? '',
         ],
         chatId: chatId,
+        latestMessage: '',
+        latestMessageTime: Timestamp.now(),
+        isLatestMessageImage: false,
+        latestMessageSenderId: AuthController.instance.user!.displayName ?? '',
+        unseenCount: 0,
       );
     }, (usersList) {
       log("chat success");
