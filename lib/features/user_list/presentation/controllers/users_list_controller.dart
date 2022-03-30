@@ -20,6 +20,8 @@ class UsersListController extends GetxController {
     getAllUsersCall();
   }
 
+  /// Fetches List of All users from either Firestore or SharedPreferences
+  /// And saves this List to observable [_users]
   Future<void> getAllUsersCall() async {
     var failureOrList = await getAllUsers.call(NoParams());
     failureOrList.fold((failure) {
@@ -29,6 +31,9 @@ class UsersListController extends GetxController {
     });
   }
 
+  /// Fetches List of users from Firestore whose User name matches query parameters
+  /// If devices is not connected to internet then fetches List of All users from SharedPreferences
+  /// And saves this List to observable [_users]
   Future<void> getUsersOnSearchCall(String value) async {
     var failureOrList = await getUsersOnSearch.call(Params(str: value));
     failureOrList.fold((failure) {

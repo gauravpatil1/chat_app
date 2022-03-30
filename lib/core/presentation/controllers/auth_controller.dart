@@ -25,6 +25,7 @@ class AuthController extends GetxController {
 
   User? get user => _user.value;
 
+  /// Binds AuthUser stream to [_user]
   @override
   void onReady() {
     super.onReady();
@@ -33,12 +34,15 @@ class AuthController extends GetxController {
     ever(_user, _onUserStateChange);
   }
 
+  /// Closes streams
   @override
   void onClose() {
     _user.close();
     super.onClose();
   }
 
+  /// Acts as a stream listner for _user stream
+  /// gets called whenever data inside _user stream changes
   _onUserStateChange(User? user) {
     if (user == null) {
       Get.offAll(() => LoginPage());

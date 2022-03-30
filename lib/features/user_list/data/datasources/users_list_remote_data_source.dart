@@ -3,8 +3,11 @@ import '../../../../core/presentation/controllers/cloud_firestore_controller.dar
 import '../models/app_user_model.dart';
 
 abstract class UsersListRemoteDataSource {
+  /// Fetches a List of Users FireStore who match the query conditions
+  /// The query parameter is User name
   Future<List<AppUserModel>> getUsersOnSearch(String str);
 
+  /// Gets All Users from Firestore
   Future<List<AppUserModel>> getAllUsers();
 }
 

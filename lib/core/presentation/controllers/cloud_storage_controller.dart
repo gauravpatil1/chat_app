@@ -9,6 +9,7 @@ class CloudStorageController extends GetxController {
 
   static final FirebaseStorage storage = FirebaseStorage.instance;
 
+  ///Uploads a file to firebase storage and returns download url for that file
   Future<String> uploadFile(
       {required String path, required String fileName}) async {
     File file = File(path);

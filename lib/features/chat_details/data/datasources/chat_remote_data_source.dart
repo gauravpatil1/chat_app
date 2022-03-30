@@ -7,13 +7,20 @@ import '../models/chat_model.dart';
 import '../models/message_model.dart';
 
 abstract class ChatRemoteDataSource {
+  /// Sends the message to Firestore as a new document to messages collection
+  /// this messages collection is the subcollection of chat document whose id is chatId
   Future<ChatModel> sendMessage(
       String chatId, MessageModel message, int oldUnseenCount);
 
+  /// Fetches stream of chat document from Firestore using chatId
+  /// If there is no chat document present then this method creates new chat document with chatId
   Future<Stream<ChatModel>> getChat(String chatId, AppUser receiver);
 
+  /// Fetches stream of messages subcollection of chat document whose id is chatId
   Stream<List<MessageModel>> getMessages(String chatId);
 
+  /// Updates chat document and sets unseen count to zero
+  /// Updates unseen message documents in messages subcollection of this chat
   void markSeenAndUpdateUnseenCount(String chatId, int oldCount);
 }
 

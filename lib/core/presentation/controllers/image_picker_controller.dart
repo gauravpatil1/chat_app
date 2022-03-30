@@ -7,6 +7,8 @@ class ImagePickerController extends GetxController {
 
   static final ImagePicker _picker = ImagePicker();
 
+  /// Shows bottomsheet and user can either select from gallery or from Camera
+  /// returns a callback with file path
   void pickImage({required Function(String) callback}) {
     Get.bottomSheet(
       Container(
@@ -132,6 +134,7 @@ class ImagePickerController extends GetxController {
     );
   }
 
+  /// opens Image picker according to conditions provided
   Future<XFile?> _getImage({required bool isFromGallery}) async {
     XFile? image;
     if (isFromGallery) {

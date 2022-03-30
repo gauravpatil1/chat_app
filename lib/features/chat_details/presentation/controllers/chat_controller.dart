@@ -61,6 +61,13 @@ class ChatController extends GetxController {
     getOrCreateChat();
   }
 
+  /// Fetches chat stream from firestore with chatId as id
+  /// if there is no chat document present then creates and saves the chat document in firestore with chatId as id
+  /// Binds chat stream to [_chat]
+  /// Fetches List of messages stream from firestore
+  /// Binds messages stream to [_messages]
+  /// Fetches AppUser stream from firestore. This is the other person in chat conversation
+  /// Binds this other person stream to [_otherPerson]
   void getOrCreateChat() async {
     String chatId = createChatId(
       receiver.uid,
@@ -74,6 +81,11 @@ class ChatController extends GetxController {
     });
   }
 
+  /// Checks whether there are any unseen messages sent from other person
+  /// and if there is any unseen message then updates the firestore chat document and messages collection accordingly
+  /// i.e,
+  ///   sets unseenCount in chat document to zero
+  ///   sets receivedAt Timestamp of every unseen message in messages subcollection to current Timestamp
   void _checkForUnseenMessages(Chat chat) {
     String chatId = createChatId(
       receiver.uid,
@@ -85,6 +97,7 @@ class ChatController extends GetxController {
     }
   }
 
+  ///Closes all streams
   @override
   void onClose() {
     _chat.close();
@@ -93,6 +106,7 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
+  /// Call to send new message to firestore
   Future<void> sendMessageCall({
     required MessageModel message,
     required int oldUnseenCount,
@@ -138,12 +152,14 @@ class ChatController extends GetxController {
     });
   }
 
+  /// Creates unique chatId using user Ids of AppUsers in chat and returns as string;
   String createChatId(String firstId, String secondId) {
     return firstId.compareTo(secondId) == -1
         ? firstId + secondId
         : secondId + firstId;
   }
 
+  /// Uploads image as chat message in firebase storage and returns a callback with stored image url
   void uploadChatImage({required Function(String) callback}) {
     try {
       ImagePickerController.instance.pickImage(
@@ -188,6 +204,8 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Fetches and returns the AppUser stream.
+  /// Here AppUser is other person in chat
   Stream<AppUserModel> getOtherUser(String id) {
     return CloudFireStoreController.firestore
         .collection('users')

@@ -14,6 +14,7 @@ class ActiveChatsController extends GetxController {
 
   List<ChatModel> get activeChats => _activeChats;
 
+  /// Binds stream of List of Active chats to [_activeChats]
   @override
   void onInit() {
     super.onInit();
@@ -21,6 +22,9 @@ class ActiveChatsController extends GetxController {
     ever(_activeChats, markMessagesAsReceived);
   }
 
+  /// This function marks message as received
+  /// Updates all unseen messages documents inside messages subcollection of chat document
+  /// updates receivedAt Timestamp of message documents to current Timestamp
   Future<void> markMessagesAsReceived(List<ChatModel> chats) async {
     for (var chat in chats) {
       if (chat.unseenCount > 0 &&
@@ -43,6 +47,7 @@ class ActiveChatsController extends GetxController {
     }
   }
 
+  /// Closes streams
   @override
   void onClose() {
     _activeChats.close();

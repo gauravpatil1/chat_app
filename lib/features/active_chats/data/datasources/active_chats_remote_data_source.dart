@@ -3,6 +3,7 @@ import '../../../../core/presentation/controllers/cloud_firestore_controller.dar
 import '../../../chat_details/data/models/chat_model.dart';
 
 abstract class ActiveChatsRemoteDataSource {
+  /// Fetches stream of List of Active chats from Firestore
   Stream<List<ChatModel>> getActiveChats();
 }
 

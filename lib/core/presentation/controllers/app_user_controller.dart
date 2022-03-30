@@ -19,18 +19,21 @@ class AppUserController extends GetxController {
   ).obs;
   AppUser get appUser => _appUser.value;
 
+  /// Binds AppUser stream to [_appUser]
   @override
   void onReady() {
     super.onReady();
     _appUser.bindStream(getAppUser());
   }
 
+  /// Closes streams
   @override
   void onClose() {
     _appUser.close();
     super.onClose();
   }
 
+  /// Fetches stream of AppUser document by uid
   Stream<AppUserModel> getAppUser() {
     return firestore
         .collection('users')

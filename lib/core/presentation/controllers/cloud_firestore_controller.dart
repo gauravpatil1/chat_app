@@ -13,6 +13,7 @@ class CloudFireStoreController extends GetxController {
 
   static final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  /// Adds AuthUser as new document to users collection of firestore if not already existing
   Future<void> addUserToApp(User user) async {
     try {
       await firestore.collection('users').doc(user.uid).get().then(
@@ -38,6 +39,7 @@ class CloudFireStoreController extends GetxController {
     }
   }
 
+  /// Updates a user document from users collection of firestore
   Future<void> changeAppUserDetails(
     String uid, {
     String? name,
@@ -62,6 +64,7 @@ class CloudFireStoreController extends GetxController {
     }
   }
 
+  /// Creates dummy chatbot chat when Authuser is added to users collection
   void createdefaultChatForUser(User user) {
     String chatId = user.uid.compareTo('chat_app_bot_id_1994') == -1
         ? user.uid + 'chat_app_bot_id_1994'

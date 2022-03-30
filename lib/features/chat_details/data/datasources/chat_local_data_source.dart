@@ -8,8 +8,10 @@ import '../../../../core/error/exceptions.dart';
 import '../models/chat_model.dart';
 
 abstract class ChatLocalDataSource {
+  /// Saves the Chat in SharedPreferences
   Future<void> saveChat(ChatModel chat);
 
+  /// Fetches the Chat from SharedPreferences
   Future<ChatModel> getChat(String id);
 }
 

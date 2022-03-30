@@ -10,8 +10,10 @@ import '../models/app_user_model.dart';
 const userListLocalConst = 'ALLUSERSINLOCAL';
 
 abstract class UsersListLocalDataSource {
+  /// Saves users list in SharedPreferences
   Future<void> saveUsers(List<AppUserModel> users);
 
+  /// Gets users list from SharedPreferences
   Future<List<AppUserModel>> getUsers();
 }
 
