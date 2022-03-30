@@ -54,7 +54,7 @@ class AuthController extends GetxController {
         isOnline: true,
       );
       Get.offAll(
-        () => ActiveChatsPage(),
+        () => const ActiveChatsPage(),
       );
     }
   }
