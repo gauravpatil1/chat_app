@@ -323,7 +323,7 @@ class AuthController extends GetxController {
                 await auth.currentUser!.updatePhotoURL(value);
                 CloudFireStoreController.instance.changeAppUserDetails(
                   auth.currentUser!.uid,
-                  name: value,
+                  photoUrl: value,
                 );
               }
             });
