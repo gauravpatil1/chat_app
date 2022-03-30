@@ -29,6 +29,7 @@ class SettingsPage extends StatelessWidget {
               return CustomScrollView(
                 slivers: [
                   SliverAppBar(
+                    pinned: true,
                     elevation: 0,
                     backgroundColor: const Color(0xFF0E185F),
                     title: const Text(

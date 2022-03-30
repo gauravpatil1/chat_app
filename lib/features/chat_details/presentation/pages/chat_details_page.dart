@@ -42,6 +42,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
             child: CustomScrollView(
               slivers: [
                 SliverAppBar(
+                  pinned: true,
                   titleSpacing: 0,
                   elevation: 0,
                   backgroundColor: const Color(0xFF0E185F),
@@ -247,7 +248,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     var atPart = (dateTime.hour == 0)
         ? ' at 12:${dateTime.minute} am'
         : (dateTime.hour == 12)
-            ? '12:${dateTime.minute} pm'
+            ? ' at 12:${dateTime.minute} pm'
             : ' at ${dateTime.hour % 12}:${dateTime.minute} ' + amPm;
     var now = DateTime.now();
     if (dateTime.year == now.year &&
