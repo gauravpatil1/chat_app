@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../features/active_chats/presentation/pages/active_chats_page.dart';
+import '../../../features/chat_details/data/models/chat_model.dart';
 import '../pages/pages.dart';
 import 'cloud_firestore_controller.dart';
 import 'cloud_storage_controller.dart';
@@ -279,6 +280,31 @@ class AuthController extends GetxController {
   Future<void> changeUsername(String value) async {
     try {
       await auth.currentUser!.updateDisplayName(value);
+      await CloudFireStoreController.firestore
+          .collection('chats')
+          .where('participantsId', arrayContains: auth.currentUser!.uid)
+          .get()
+          .then((querySnapshot) {
+        var chatList = querySnapshot.docs.map((doc) {
+          var chat = ChatModel.fromJson(doc.data());
+          var userIndex = chat.participantsId.indexOf(auth.currentUser!.uid);
+          var chatId = chat.chatId;
+          var newArray = chat.participantsName;
+          newArray[userIndex] = value;
+          return {
+            'chatId': chatId,
+            'newNameArray': newArray,
+          };
+        }).toList();
+
+        for (var chat in chatList) {
+          CloudFireStoreController.firestore
+              .collection('chats')
+              .doc(chat['chatId'] as String)
+              .update({'participantsName': chat['newNameArray']});
+        }
+      });
+
       CloudFireStoreController.instance.changeAppUserDetails(
         auth.currentUser!.uid,
         name: value,
@@ -321,6 +347,33 @@ class AuthController extends GetxController {
                 .then((value) async {
               if (value.isNotEmpty) {
                 await auth.currentUser!.updatePhotoURL(value);
+                await CloudFireStoreController.firestore
+                    .collection('chats')
+                    .where('participantsId',
+                        arrayContains: auth.currentUser!.uid)
+                    .get()
+                    .then((querySnapshot) {
+                  var chatList = querySnapshot.docs.map((doc) {
+                    var chat = ChatModel.fromJson(doc.data());
+                    var userIndex =
+                        chat.participantsId.indexOf(auth.currentUser!.uid);
+                    var chatId = chat.chatId;
+                    var newArray = chat.participantsAvatarUrl;
+                    newArray[userIndex] = value;
+                    return {
+                      'chatId': chatId,
+                      'newImageArray': newArray,
+                    };
+                  }).toList();
+
+                  for (var chat in chatList) {
+                    CloudFireStoreController.firestore
+                        .collection('chats')
+                        .doc(chat['chatId'] as String)
+                        .update(
+                            {'participantsAvatarUrl': chat['newImageArray']});
+                  }
+                });
                 CloudFireStoreController.instance.changeAppUserDetails(
                   auth.currentUser!.uid,
                   photoUrl: value,
